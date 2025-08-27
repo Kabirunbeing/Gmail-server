@@ -19,11 +19,17 @@ console.log('🚀 Email methods: Resend API (primary) + Gmail SMTP (fallback)');
 console.log('⚠️  Note: For Railway deployment, Resend API key needed in environment variables');
 
 // Email configuration - Railway-compatible with Resend API
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resend = null;
+if (process.env.RESEND_API_KEY) {
+    resend = new Resend(process.env.RESEND_API_KEY);
+    console.log('✅ Resend API initialized successfully');
+} else {
+    console.log('⚠️  Resend API key not found - will use Gmail SMTP fallback only');
+}
 
 // Create Resend email function (Railway-compatible)
 const sendEmailViaResend = async (emailContent) => {
-    if (!process.env.RESEND_API_KEY) {
+    if (!process.env.RESEND_API_KEY || !resend) {
         throw new Error('Resend API key not configured');
     }
     
