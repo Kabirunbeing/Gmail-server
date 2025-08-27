@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - Gmailify</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Comprehensive inline CSS for payment page */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #ffffff;
+            background: linear-gradient(135deg, #000000 0%, #111111 50%, #000000 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 5px;
+            text-shadow: 0 0 20px rgba(255,255,255,0.3);
+        }
+        
+        .logo p {
+            color: #888;
+            font-size: 1rem;
+        }
+        
+        .payment-container {
+            flex: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .payment-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .payment-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #ffffff 0%, #cccccc 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .payment-header p {
+            font-size: 1.1rem;
+            color: #888;
+        }
+        
+        .payment-summary {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 1.1rem;
+        }
+        
+        .summary-row:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            font-size: 1.3rem;
+            color: #4CAF50;
+        }
+        
+        .payment-form {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .payment-methods h3 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+        
+        .method-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .method-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+        }
+        
+        .method-card:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .method-card.selected {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+        }
+        
+        .method-card input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .method-name {
+            display: block;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        
+        .method-desc {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .phone-input {
+            margin-bottom: 30px;
+        }
+        
+        .phone-input label {
+            display: block;
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+        
+        .phone-input input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #ffffff;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        .phone-input input:focus {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+        
+        .phone-input input::placeholder {
+            color: #666;
+        }
+        
+        .error-message {
+            color: #ff6b6b;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            padding: 10px;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid #ff6b6b;
+        }
+        
+        /* Shake animation for errors */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .input-error {
+            border-color: #ff6b6b !important;
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.4) !important;
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        /* Fake loader styles */
+        .fake-loader {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        
+        .loader-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        .loader-text {
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .loader-steps {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #888;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Progress dots animation */
+        .progress-dots {
+            display: inline-block;
+        }
+        
+        .progress-dots::after {
+            content: '';
+            animation: dots 1.5s infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+        
+        .complete-btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+            color: #000000;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.15);
+        }
+        
+        .complete-btn:hover {
+            background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(255, 255, 255, 0.2);
+        }
+        
+        .complete-btn:active {
+            transform: translateY(0);
+        }
+        
+        .complete-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .security-note {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .security-note h4 {
+            color: #ffffff;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        
+        .security-note p {
+            color: #ccc;
+            line-height: 1.6;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #888;
+        }
+        
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .logo h1 {
+                font-size: 2rem;
+            }
+            
+            .payment-header h1 {
+                font-size: 2rem;
+            }
+            
+            .payment-header p {
+                font-size: 1rem;
+            }
+            
+            .method-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .payment-summary,
+            .payment-form,
+            .security-note {
+                padding: 20px;
+            }
+            
+            .summary-row {
+                font-size: 1rem;
+            }
+            
+            .summary-row:last-child {
+                font-size: 1.1rem;
+            }
+            
+            .complete-btn {
+                padding: 15px;
+                font-size: 1.1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header {
+                margin-bottom: 20px;
+                padding: 15px 0;
+            }
+            
+            .logo h1 {
+                font-size: 1.8rem;
+            }
+            
+            .payment-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .payment-summary,
+            .payment-form,
+            .security-note {
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+            
+            .method-card {
+                padding: 20px 15px;
+            }
+            
+            .security-note p {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <h1>Gmailify</h1>
+                <p>Payment Processing</p>
+            </div>
+        </header>
+
+        <div class="payment-container">
+            <div class="payment-header">
+                <h1>Get Paid Now</h1>
+                <p>Enter your mobile wallet details to receive instant payment</p>
+            </div>
+
+            <div class="payment-summary">
+                <div class="summary-row">
+                    <span>Gmail Accounts Submitted:</span>
+                    <span id="accountCount">0</span>
+                </div>
+                <div class="summary-row">
+                    <span>Rate per Account:</span>
+                    <span>₨27</span>
+                </div>
+                <div class="summary-row">
+                    <span>Total Earning:</span>
+                    <span id="totalEarning">₨0</span>
+                </div>
+            </div>
+
+            <form id="paymentForm" class="payment-form">
+                <div class="payment-methods">
+                    <h3>Choose Payment Method</h3>
+                    <div class="method-grid">
+                        <div class="method-card" onclick="selectPaymentMethod('easypaisa')">
+                            <input type="radio" name="paymentMethod" value="easypaisa" id="easypaisa">
+                            <label for="easypaisa" class="method-name">EasyPaisa</label>
+                            <span class="method-desc">Instant mobile wallet transfer</span>
+                        </div>
+                        <div class="method-card" onclick="selectPaymentMethod('jazzcash')">
+                            <input type="radio" name="paymentMethod" value="jazzcash" id="jazzcash">
+                            <label for="jazzcash" class="method-name">JazzCash</label>
+                            <span class="method-desc">Secure mobile payment</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="phone-input">
+                    <label for="phoneNumber">Mobile Number for Payment</label>
+                    <input 
+                        type="tel" 
+                        id="phoneNumber" 
+                        name="phoneNumber" 
+                        placeholder="03XX-XXXXXXX"
+                        pattern="[0-9]{11}"
+                        maxlength="11"
+                        required
+                    />
+                    <small style="color: #888; font-size: 0.9rem; margin-top: 5px; display: block;">
+                        Enter your 11-digit Pakistani mobile number starting with 03<br>
+                        <strong>Valid formats:</strong> 03001234567, 03121234567, 03331234567<br>
+                        <span style="color: #ff6b6b;">⚠️ Must be registered with your selected payment service</span>
+                    </small>
+                </div>
+
+                <button type="submit" class="complete-btn" id="completeBtn">
+                    Complete Payment Process
+                </button>
+                
+                <!-- Fake loader for validation -->
+                <div id="fakeLoader" class="fake-loader">
+                    <div class="loader-spinner"></div>
+                    <div class="loader-text">
+                        <span id="loaderText">Validating payment details<span class="progress-dots"></span></span>
+                    </div>
+                    <div class="loader-steps" id="loaderSteps">
+                        Step 1: Verifying mobile number...
+                    </div>
+                </div>
+            </form>
+
+            <div class="security-note">
+                <h4>Payment Process</h4>
+                <p>
+                    <strong>How it works:</strong><br>
+                    • Enter your 11-digit mobile number (03XXXXXXXXX)<br>
+                    • Select EasyPaisa or JazzCash<br>
+                    • Click "Complete Payment Process"<br>
+                    • Payment will be sent to your mobile wallet within 5-10 minutes<br>
+                    • You will receive SMS confirmation<br>
+                    • ₨27 will be sent per Gmail account submitted
+                </p>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="index.html" style="color: #888; text-decoration: none;">
+                    ← Back to Submit More Accounts
+                </a>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>Gmailify - Secure Payment Processing | 24/7 Support Available</p>
+        </footer>
+    </div>
+
+    <script>
+        // Payment page functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get submission data from localStorage
+            const submissionData = JSON.parse(localStorage.getItem('gmailSubmission') || '{}');
+            
+            // Check if payment was already processed
+            if (submissionData.paymentProcessed) {
+                alert('Payment already processed! You cannot submit payment again for the same accounts.');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            const accountCount = submissionData.count || 0;
+            const totalEarning = accountCount * 27;
+            
+            // If no submission data, redirect back
+            if (accountCount === 0) {
+                alert('No Gmail accounts submitted! Please submit accounts first.');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Update display
+            document.getElementById('accountCount').textContent = accountCount;
+            document.getElementById('totalEarning').textContent = `₨${totalEarning.toLocaleString()}`;
+            
+            // Initialize payment form
+            initializePaymentForm();
+        });
+
+        function selectPaymentMethod(method) {
+            // Remove previous selections
+            document.querySelectorAll('.method-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Add selection to clicked card
+            event.currentTarget.classList.add('selected');
+            document.getElementById(method).checked = true;
+        }
+
+        function initializePaymentForm() {
+            const form = document.getElementById('paymentForm');
+            const completeBtn = document.getElementById('completeBtn');
+            const phoneInput = document.getElementById('phoneNumber');
+            let isProcessing = false; // Flag to prevent multiple submissions
+            let validationAttempts = 0; // Track validation attempts
+            
+            // Add real-time validation feedback
+            phoneInput.addEventListener('input', function(e) {
+                validatePhoneNumberRealTime(e.target);
+            });
+            
+            phoneInput.addEventListener('blur', function(e) {
+                validatePhoneNumberRealTime(e.target);
+            });
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Prevent multiple submissions
+                if (isProcessing) {
+                    return;
+                }
+                
+                validationAttempts++;
+                
+                const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+                const phoneNumber = document.getElementById('phoneNumber').value;
+                
+                // Always fail payment method validation first few times
+                if (!paymentMethod) {
+                    showFakeLoaderThenError('Please select a payment method (EasyPaisa or JazzCash)', 1500);
+                    return;
+                }
+                
+                // Start fake validation process
+                isProcessing = true;
+                showFakeValidationProcess(paymentMethod.value, phoneNumber, validationAttempts);
+            });
+        }
+        
+        function validatePhoneNumber(phoneNumber, attempts) {
+            // Remove any non-digit characters
+            const cleanPhone = phoneNumber.replace(/\D/g, '');
+            
+            // Basic length check
+            if (!cleanPhone || cleanPhone.length !== 11) {
+                return {
+                    isValid: false,
+                    message: `Invalid phone number length. Must be exactly 11 digits. You entered ${cleanPhone.length} digits.`
+                };
+            }
+            
+            // Must start with 03 for Pakistani mobile numbers
+            if (!cleanPhone.startsWith('03')) {
+                return {
+                    isValid: false,
+                    message: 'Pakistani mobile numbers must start with 03. Please enter a valid Pakistani mobile number.'
+                };
+            }
+            
+            // Check for valid Pakistani mobile prefixes
+            const validPrefixes = ['030', '031', '032', '033', '034', '035', '036', '037', '038', '039'];
+            const prefix = cleanPhone.substring(0, 3);
+            if (!validPrefixes.includes(prefix)) {
+                return {
+                    isValid: false,
+                    message: `Invalid mobile number prefix: ${prefix}. Valid prefixes: ${validPrefixes.join(', ')}`
+                };
+            }
+            
+            // Check for repeated digits (common fake numbers)
+            if (/(.)\1{4,}/.test(cleanPhone)) {
+                return {
+                    isValid: false,
+                    message: 'Invalid number pattern detected. Please enter a real mobile number.'
+                };
+            }
+            
+            // Check for sequential numbers
+            if (isSequentialNumber(cleanPhone)) {
+                return {
+                    isValid: false,
+                    message: 'Sequential number patterns are not allowed. Please enter a valid mobile number.'
+                };
+            }
+            
+            // Additional checks that make it harder to pass
+            if (attempts < 5) {
+                const attemptErrors = [
+                    'Mobile number verification failed. Please double-check your number.',
+                    'This number is not registered with the selected payment service.',
+                    'Invalid network operator. Please try a different number.',
+                    'Mobile number format validation failed. Please re-enter.',
+                    'Number verification timeout. Please try again.'
+                ];
+                return {
+                    isValid: false,
+                    message: attemptErrors[attempts - 1] || attemptErrors[0]
+                };
+            }
+            
+            // Even if all checks pass, random failure
+            if (Math.random() < 0.6) {
+                return {
+                    isValid: false,
+                    message: 'Mobile number verification failed. This number cannot be verified at this time.'
+                };
+            }
+            
+            return { isValid: true, message: 'Valid number' };
+        }
+        
+        function isSequentialNumber(number) {
+            for (let i = 0; i < number.length - 2; i++) {
+                const current = parseInt(number[i]);
+                const next = parseInt(number[i + 1]);
+                const afterNext = parseInt(number[i + 2]);
+                
+                if (next === current + 1 && afterNext === next + 1) {
+                    return true;
+                }
+                if (next === current - 1 && afterNext === next - 1) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        function validatePhoneNumberRealTime(input) {
+            const value = input.value.replace(/\D/g, '');
+            
+            // Remove existing error styling
+            input.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+            
+            // Show real-time feedback
+            if (value.length > 0 && value.length < 11) {
+                input.style.borderColor = '#ff6b6b';
+                input.style.boxShadow = '0 0 10px rgba(255, 107, 107, 0.3)';
+            } else if (value.length === 11) {
+                if (!value.startsWith('03')) {
+                    input.style.borderColor = '#ff6b6b';
+                    input.style.boxShadow = '0 0 10px rgba(255, 107, 107, 0.3)';
+                } else {
+                    input.style.borderColor = '#ffeb3b';
+                    input.style.boxShadow = '0 0 10px rgba(255, 235, 59, 0.3)';
+                }
+            }
+        }
+        
+        function showError(message) {
+            // Create or update error display
+            let errorDiv = document.getElementById('paymentError');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.id = 'paymentError';
+                errorDiv.style.cssText = `
+                    background: rgba(255, 107, 107, 0.1);
+                    border: 1px solid #ff6b6b;
+                    border-radius: 10px;
+                    padding: 15px;
+                    margin: 20px 0;
+                    color: #ff6b6b;
+                    font-weight: 500;
+                    text-align: center;
+                    animation: shake 0.5s ease-in-out;
+                `;
+                document.querySelector('.payment-form').appendChild(errorDiv);
+            }
+            
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            
+            // Add shake animation
+            errorDiv.style.animation = 'none';
+            setTimeout(() => {
+                errorDiv.style.animation = 'shake 0.5s ease-in-out';
+            }, 10);
+            
+            // Hide error after 5 seconds
+            setTimeout(() => {
+                if (errorDiv) {
+                    errorDiv.style.display = 'none';
+                }
+            }, 5000);
+        }
+        
+        function showFakeValidationProcess(paymentMethod, phoneNumber, attempts) {
+            const fakeLoader = document.getElementById('fakeLoader');
+            const loaderText = document.getElementById('loaderText');
+            const loaderSteps = document.getElementById('loaderSteps');
+            const completeBtn = document.getElementById('completeBtn');
+            
+            // Hide any existing errors
+            const errorDiv = document.getElementById('paymentError');
+            if (errorDiv) {
+                errorDiv.style.display = 'none';
+            }
+            
+            // Show loader
+            fakeLoader.style.display = 'block';
+            completeBtn.disabled = true;
+            completeBtn.style.opacity = '0.5';
+            
+            // Step 1: Mobile number validation
+            loaderText.innerHTML = 'Validating mobile number<span class="progress-dots"></span>';
+            loaderSteps.textContent = 'Step 1: Verifying mobile number format...';
+            
+            setTimeout(() => {
+                // Step 2: Payment method verification
+                loaderText.innerHTML = 'Verifying payment method<span class="progress-dots"></span>';
+                loaderSteps.textContent = 'Step 2: Connecting to payment gateway...';
+                
+                setTimeout(() => {
+                    // Step 3: Account verification
+                    loaderText.innerHTML = 'Checking account status<span class="progress-dots"></span>';
+                    loaderSteps.textContent = 'Step 3: Verifying account with payment service...';
+                    
+                    setTimeout(() => {
+                        // Step 4: Security check
+                        loaderText.innerHTML = 'Security verification<span class="progress-dots"></span>';
+                        loaderSteps.textContent = 'Step 4: Running security checks...';
+                        
+                        setTimeout(() => {
+                            // Hide loader and show error
+                            fakeLoader.style.display = 'none';
+                            completeBtn.disabled = false;
+                            completeBtn.style.opacity = '1';
+                            isProcessing = false;
+                            
+                            // Run comprehensive validation and show error
+                            const phoneValidation = validatePhoneNumber(phoneNumber, attempts);
+                            if (!phoneValidation.isValid) {
+                                showError(phoneValidation.message);
+                                return;
+                            }
+                            
+                            // Additional security checks that often fail
+                            if (attempts < 3) {
+                                showError('Security verification failed. Please wait and try again...');
+                                return;
+                            }
+                            
+                            if (Math.random() < 0.8) { // 80% chance to fail with random errors
+                                const randomErrors = [
+                                    'Network timeout: Unable to connect to payment gateway',
+                                    'Payment service temporarily unavailable. Please try again later',
+                                    'Mobile number verification failed with payment provider',
+                                    'Account validation error: Number not found in payment system',
+                                    'Security check failed: Suspicious activity detected',
+                                    'Daily transaction limit exceeded for this number',
+                                    'Payment method not supported for this mobile number',
+                                    'System maintenance in progress. Please try again in 30 minutes'
+                                ];
+                                showError(randomErrors[Math.floor(Math.random() * randomErrors.length)]);
+                                return;
+                            }
+                            
+                            // If somehow passes all checks, still fail during final processing
+                            showFinalProcessingFailure();
+                            
+                        }, 2000); // Step 4 duration
+                    }, 1800); // Step 3 duration
+                }, 1500); // Step 2 duration
+            }, 1200); // Step 1 duration
+        }
+        
+        function showFinalProcessingFailure() {
+            const completeBtn = document.getElementById('completeBtn');
+            completeBtn.disabled = true;
+            completeBtn.innerHTML = 'Processing Payment...';
+            
+            setTimeout(() => {
+                completeBtn.disabled = false;
+                completeBtn.innerHTML = 'Complete Payment Process';
+                isProcessing = false;
+                
+                const finalErrors = [
+                    'Payment processing failed: Transaction declined by payment gateway',
+                    'Unable to complete payment: Insufficient funds or account locked',
+                    'Transaction failed: Please contact your payment service provider',
+                    'Payment declined: Your account may be temporarily suspended',
+                    'Error: Payment could not be processed at this time'
+                ];
+                showError(finalErrors[Math.floor(Math.random() * finalErrors.length)]);
+            }, 3000);
+        }
+        
+        function showFakeLoaderThenError(message, duration = 2000) {
+            const fakeLoader = document.getElementById('fakeLoader');
+            const loaderText = document.getElementById('loaderText');
+            const loaderSteps = document.getElementById('loaderSteps');
+            
+            // Hide any existing errors
+            const errorDiv = document.getElementById('paymentError');
+            if (errorDiv) {
+                errorDiv.style.display = 'none';
+            }
+            
+            // Show simple loader
+            fakeLoader.style.display = 'block';
+            loaderText.innerHTML = 'Validating selection<span class="progress-dots"></span>';
+            loaderSteps.textContent = 'Checking payment method selection...';
+            
+            setTimeout(() => {
+                fakeLoader.style.display = 'none';
+                showError(message);
+            }, duration);
+        }
+
+        function simulatePaymentProcess(method, phone) {
+            // Check if payment was already processed
+            const submissionData = JSON.parse(localStorage.getItem('gmailSubmission') || '{}');
+            if (submissionData.paymentProcessed) {
+                alert('Payment already processed for this submission!');
+                return;
+            }
+            
+            // Show processing for 3 seconds
+            setTimeout(() => {
+                // Mark payment as processed
+                submissionData.paymentProcessed = true;
+                submissionData.paymentMethod = method;
+                submissionData.phoneNumber = phone;
+                submissionData.paymentTimestamp = new Date().toISOString();
+                localStorage.setItem('gmailSubmission', JSON.stringify(submissionData));
+                
+                // Update button to show success
+                const completeBtn = document.getElementById('completeBtn');
+                completeBtn.innerHTML = 'Payment Sent Successfully!';
+                completeBtn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+                
+                // Show success message
+                const accountCount = document.getElementById('accountCount').textContent;
+                const totalEarning = document.getElementById('totalEarning').textContent;
+                
+                alert(`SUCCESS!\n\nPayment of ${totalEarning} has been sent to your ${method.toUpperCase()} account (${phone}).\n\nYou will receive an SMS confirmation within 5-10 minutes.\n\nThank you for submitting ${accountCount} Gmail accounts!`);
+                
+                // Clear localStorage and redirect after delay
+                setTimeout(() => {
+                    localStorage.removeItem('gmailSubmission');
+                    window.location.href = 'index.html';
+                }, 3000);
+                
+            }, 3000);
+        }
+
+        // Phone number formatting
+        document.getElementById('phoneNumber').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+            
+            if (value.length > 11) {
+                value = value.substring(0, 11);
+            }
+            
+            e.target.value = value;
+        });
+    </script>
+</body>
+</html>
