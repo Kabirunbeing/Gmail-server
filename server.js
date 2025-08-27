@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
-console.log('📧 Setting up Railway-compatible email delivery to nocturnallad4@gmail.com');
+console.log('📧 Setting up Railway-compatible email delivery to kab6168@gmail.com');
 console.log('🚀 Email methods: Resend API (primary) + Gmail SMTP (fallback)');
 console.log('⚠️  Note: For Railway deployment, Resend API key needed in environment variables');
 
@@ -30,7 +30,7 @@ const sendEmailViaResend = async (emailContent) => {
     console.log('📧 Sending email via Resend API (Railway-compatible)...');
     
     const data = await resend.emails.send({
-        from: 'Gmailify <notifications@resend.dev>', // Resend test domain
+        from: 'Gmailify <onboarding@resend.dev>', 
         to: [emailContent.to],
         subject: emailContent.subject,
         html: emailContent.html,
