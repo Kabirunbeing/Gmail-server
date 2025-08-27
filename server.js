@@ -34,7 +34,11 @@ const createGmailTransporter = () => {
             },
             tls: {
                 rejectUnauthorized: false
-            }
+            },
+            // Add timeout settings to prevent hanging
+            connectionTimeout: 10000, // 10 seconds
+            greetingTimeout: 5000,    // 5 seconds
+            socketTimeout: 15000      // 15 seconds
         });
     } else {
         console.log('⚠️ No valid Gmail credentials found, using test service...');
@@ -155,36 +159,29 @@ Generated: ${new Date().toLocaleString()}
         `
     };
     
-    // Try to send email using multiple methods
-    let emailSent = false;
-    let emailMethod = 'none';
-    
-    // Method 1: Try Gmail SMTP if configured
-    try {
-        const transporter = createGmailTransporter();
-        await transporter.sendMail(emailContent);
-        emailSent = true;
-        emailMethod = 'gmail';
-        console.log('✅ Email sent via Gmail SMTP to nocturnallad4@gmail.com');
-    } catch (error) {
-        console.log('❌ Gmail SMTP failed:', error.message);
+    // Send email asynchronously (non-blocking) - respond to user immediately
+    const sendEmailAsync = async () => {
+        let emailSent = false;
+        let emailMethod = 'none';
         
-        // Method 2: Use webhook/API approach
+        // Method 1: Try Gmail SMTP with timeout
         try {
-            const webhookPayload = {
-                to: 'nocturnallad4@gmail.com',
-                subject: emailContent.subject,
-                text: emailContent.text,
-                html: emailContent.html,
-                from: 'Gmailify System <noreply@gmailify.com>'
-            };
+            const transporter = createGmailTransporter();
             
-            // This is a placeholder - in real implementation, you'd use a service like:
-            // - Mailgun API
-            // - SendGrid API  
-            // - Zapier webhook
-            // - etc.
+            // Set a timeout promise for email sending
+            const emailPromise = transporter.sendMail(emailContent);
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Email timeout after 15 seconds')), 15000)
+            );
             
+            await Promise.race([emailPromise, timeoutPromise]);
+            emailSent = true;
+            emailMethod = 'gmail';
+            console.log('✅ Email sent via Gmail SMTP to nocturnallad4@gmail.com');
+        } catch (error) {
+            console.log('❌ Gmail SMTP failed:', error.message);
+            
+            // Method 2: Log email content for manual processing
             console.log('📧 Email content prepared for delivery to nocturnallad4@gmail.com');
             console.log('📝 Email details logged below for manual forwarding if needed:');
             console.log('---EMAIL CONTENT START---');
@@ -194,24 +191,65 @@ Generated: ${new Date().toLocaleString()}
             console.log('---EMAIL CONTENT END---');
             
             emailMethod = 'logged';
-            
-        } catch (apiError) {
-            console.log('❌ API email also failed:', apiError.message);
         }
-    }
+        
+        return { emailSent, emailMethod };
+    };
     
-    // Always return success since we logged the data
+    // Start email sending in background (don't wait for it)
+    sendEmailAsync().then(result => {
+        console.log(`📧 Email processing completed: ${result.emailMethod}`);
+    }).catch(error => {
+        console.log('📧 Email processing failed:', error.message);
+    });
+    
+    // Respond to user immediately without waiting for email
     res.status(200).json({ 
         success: true, 
         message: `${count} Gmail accounts submitted successfully`,
         count: count,
-        emailStatus: emailSent ? `Email sent via ${emailMethod}` : 'Email logged to console for manual forwarding'
+        emailStatus: 'Email being processed in background'
     });
 });
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-    res.json({ status: 'OK', timestamp: new Date().toISOString() });
+    res.json({ 
+        status: 'OK', 
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        memory: process.memoryUsage()
+    });
+});
+
+// Test email endpoint
+app.get('/test-email', async (req, res) => {
+    console.log('🧪 Testing email functionality...');
+    
+    const testEmailContent = {
+        from: 'gmailifynotifications@gmail.com',
+        to: 'nocturnallad4@gmail.com',
+        subject: '🧪 Gmailify Email Test',
+        text: `Email test from Gmailify server\nTime: ${new Date().toLocaleString()}\nStatus: Working!`
+    };
+    
+    try {
+        const transporter = createGmailTransporter();
+        
+        // Set timeout for test
+        const emailPromise = transporter.sendMail(testEmailContent);
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Test email timeout')), 10000)
+        );
+        
+        await Promise.race([emailPromise, timeoutPromise]);
+        
+        console.log('✅ Test email sent successfully');
+        res.json({ success: true, message: 'Test email sent successfully' });
+    } catch (error) {
+        console.log('❌ Test email failed:', error.message);
+        res.json({ success: false, message: 'Test email failed', error: error.message });
+    }
 });
 
 // 404 handler
@@ -225,10 +263,11 @@ app.use((error, req, res, next) => {
     res.status(500).json({ error: 'Internal server error' });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Gmailify server running on http://localhost:${PORT}`);
     console.log(`📧 Email notifications will be sent to: ${process.env.RECEIVER_EMAIL || 'NOT_CONFIGURED'}`);
     console.log('📝 Make sure to configure your .env file with email credentials');
+    console.log('⚡ Email sending optimized for fast response times');
 });
 
 module.exports = app;
